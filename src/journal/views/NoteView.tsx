@@ -75,7 +75,17 @@ export const NoteView = () => {
       sx={{ mb: 1 }}
     >
       <Grid item>
-        <Typography fontSize={39} fontWeight="light">
+        <Typography
+          sx={{
+            fontSize: {
+              xs: 24,
+              sm: 24,
+              md: 39,
+              lg: 39,
+            },
+          }}
+          fontWeight="light"
+        >
           {dateString}
         </Typography>
       </Grid>

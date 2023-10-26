@@ -1,15 +1,23 @@
 import { MenuOutlined, LogoutOutlined } from "@mui/icons-material";
 import { AppBar, Toolbar, IconButton, Grid, Typography } from "@mui/material";
 import { startLogout } from "../../store/auth";
-import { AppDispatch } from "../../store";
-import { useDispatch } from "react-redux";
+import { AppDispatch, RootState } from "../../store";
+import { useDispatch, useSelector } from "react-redux";
+import { toggleSideBar } from "../../store/sidebar";
 
-export const NavBar = ({ drawerWidth }: { drawerWidth: number }) => {
+export const NavBar = () => {
   const dispatch: AppDispatch = useDispatch();
+
+  const { drawerWidth } = useSelector((state: RootState) => state.sidebar);
 
   const onLogout = () => {
     dispatch(startLogout());
   };
+
+  const handleDrawerClose = () => {
+    dispatch(toggleSideBar());
+  };
+
   return (
     <AppBar
       position="fixed"
@@ -22,13 +30,19 @@ export const NavBar = ({ drawerWidth }: { drawerWidth: number }) => {
     >
       <Toolbar>
         <IconButton
+          onClick={handleDrawerClose}
           color="inherit"
           edge="start"
-          sx={{ mr: 2, display: { sm: "none" } }}
+          sx={{ mr: 2 }}
         >
           <MenuOutlined />
         </IconButton>
-        <Grid container direction="row" justifyContent="space-between">
+        <Grid
+          container
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
           <Typography variant="h6" noWrap component="div">
             JournalApp
           </Typography>

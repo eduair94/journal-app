@@ -1,11 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { authSlice } from './auth'
 import { journalSlice } from './journal'
+import { sideBarSlice } from './sidebar'
 
 export const store = configureStore({
   reducer: {
     auth: authSlice.reducer,
-    journal: journalSlice.reducer
+    journal: journalSlice.reducer,
+    sidebar: sideBarSlice.reducer
   },
 })
 

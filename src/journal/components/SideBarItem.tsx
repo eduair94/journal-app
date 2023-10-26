@@ -10,6 +10,7 @@ import { JournalNoteI, setActiveNote } from "../../store/journal";
 import { useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store";
+import { toggleSideBar } from "../../store/sidebar";
 
 export const SideBarItem = (note: JournalNoteI) => {
   const { title, body } = note;
@@ -18,6 +19,7 @@ export const SideBarItem = (note: JournalNoteI) => {
 
   const onClickNote = () => {
     dispatch(setActiveNote(note));
+    dispatch(toggleSideBar());
   };
 
   const newTitle = useMemo(() => {
