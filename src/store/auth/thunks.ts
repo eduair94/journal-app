@@ -5,15 +5,9 @@ import { loginUserWithEmailPassword, logoutFromFirebase, registerUserWithEmailPa
 import { clearNotesLogout, deleteNoteById, setSaving } from "../journal"
 import { FirebaseDB } from "../../firebase/config"
 
-export const checkingAuthentication = (email:string, password:string) => {
+export const checkingAuthentication = () => {
     return async(dispatch:AppDispatch) => {
         dispatch(checkingCredentials());
-        const result = await loginUserWithEmailPassword({email, password});
-        if(!result.ok) {
-            dispatch(logout({errorMessage: result.errorMessage as string}));
-            return;
-        }
-        dispatch(login(result as UserI));
     }
 }
 
@@ -49,7 +43,7 @@ export const startLoginWithEmailPassword = ({email, password}: UserLI) => {
             dispatch(logout({errorMessage: result.errorMessage as string}));
             return;
         }
-        dispatch(login({email: result.email, displayName: result.displayName, uid: result.uid} as UserI));
+        dispatch(login(result as UserI));
     }
 }
 

@@ -58,10 +58,10 @@ export const startSavingNote = () => {
 export const startUploadingFiles = (files: FileList) => {
     return async(dispatch:AppDispatch) => {
         dispatch(setSaving());
-        console.log("Files", files);
         const res = await Promise.all(Array.from(files).map(file => {
             return fileUpload(file);
-        }));
-        dispatch(setPhotosToActiveNote(res));
+        }))
+        const resFiles = res.filter(r => r !== null) as string[];
+        dispatch(setPhotosToActiveNote(resFiles));
     }
 }

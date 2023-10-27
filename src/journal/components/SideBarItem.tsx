@@ -11,15 +11,18 @@ import { useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store";
 import { toggleSideBar } from "../../store/sidebar";
+import { useMobile } from "../../hooks";
 
 export const SideBarItem = (note: JournalNoteI) => {
   const { title, body } = note;
 
   const dispatch: AppDispatch = useDispatch();
 
+  const isMobile = useMobile();
+
   const onClickNote = () => {
     dispatch(setActiveNote(note));
-    dispatch(toggleSideBar());
+    if (isMobile) dispatch(toggleSideBar());
   };
 
   const newTitle = useMemo(() => {

@@ -4,7 +4,6 @@ import {
   Drawer,
   IconButton,
   List,
-  Toolbar,
   Typography,
   styled,
 } from "@mui/material";
@@ -72,18 +71,14 @@ export const SideBar = () => {
         onClose={toggleDrawer()}
       >
         <DrawerHeader>
+          <Typography variant="h6" fontSize="16px" component="div">
+            {displayName}
+          </Typography>
           <IconButton onClick={handleDrawerClose}>
             <ChevronLeftIcon />
           </IconButton>
         </DrawerHeader>
         <Divider />
-        <Toolbar>
-          <Typography variant="h6" noWrap component="div">
-            {displayName}
-          </Typography>
-        </Toolbar>
-        <Divider />
-
         <List>
           {notes.map((note) => {
             return <SideBarItem key={note.id} {...note} />;
