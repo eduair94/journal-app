@@ -6,8 +6,8 @@ import { AuthLayout } from "../layout/AuthLayout";
 import { useForm } from "../../hooks";
 import {
   AuthStatusEnum,
-  checkingAuthentication,
   startGoogleSignIn,
+  startLoginWithEmailPassword,
 } from "../../store/auth";
 import { AppDispatch, RootState } from "../../store";
 import { useMemo } from "react";
@@ -34,7 +34,7 @@ export const LoginPage = () => {
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     console.log("Email", email, password);
-    dispatch(checkingAuthentication(email, password));
+    dispatch(startLoginWithEmailPassword({ email, password }));
   };
 
   const onGoogleSignIn = () => {
