@@ -1,4 +1,3 @@
-import 'dotenv/config'
 import { fileUpload} from '../../src/helpers/fileUpload'
 import {v2 as cloudinary} from 'cloudinary';
           

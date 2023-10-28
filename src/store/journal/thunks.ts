@@ -11,8 +11,6 @@ export const startNewNote = () => {
 
         const {uid} = getState().auth;
 
-        console.log("start new note");
-
         const newNote:JournalNoteNewI = {
             title: '',
             body: '',
@@ -21,8 +19,7 @@ export const startNewNote = () => {
         }
 
         const newDoc = doc(collection(FirebaseDB, `${uid}/journal/notes`));
-        const resDoc = await setDoc(newDoc, newNote);
-        console.log(newDoc, resDoc);
+        await setDoc(newDoc, newNote);
         newNote.id = newDoc.id;
         dispatch(addNewEmptyNote(newNote as JournalNoteI));
         dispatch(setActiveNote(newNote as JournalNoteI));
