@@ -1,4 +1,4 @@
-import { TurnedInNot } from "@mui/icons-material";
+import TurnedInNot from "@mui/icons-material/TurnedInNot";
 import {
   ListItem,
   ListItemButton,

@@ -1,5 +1,9 @@
-import { Google } from "@mui/icons-material";
-import { Alert, Button, Grid, TextField, Typography } from "@mui/material";
+import Google from "@mui/icons-material/Google";
+import Alert from "@mui/material/Alert";
+import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { AuthLayout } from "../layout/AuthLayout";
@@ -45,6 +49,7 @@ export const LoginPage = () => {
   return (
     <AuthLayout title="Login">
       <form
+        data-testid="login-form"
         className="animate__animated animate__fadeIn animate__faster"
         onSubmit={onSubmit}
         action=""
@@ -52,7 +57,7 @@ export const LoginPage = () => {
         <Grid container>
           <Grid item xs={12} sx={{ mt: 2 }}>
             <TextField
-              label="Correo"
+              label="Email"
               type="email"
               name="email"
               placeholder="correo@gmail.com"
@@ -63,13 +68,16 @@ export const LoginPage = () => {
           </Grid>
           <Grid item xs={12} sx={{ mt: 2 }}>
             <TextField
-              label="Contraseña"
+              label="Password"
               type="password"
               name="password"
               placeholder="Contraseña"
               fullWidth
               value={password}
               onChange={onInputChange}
+              inputProps={{
+                "data-testid": "password",
+              }}
             />
           </Grid>
         </Grid>
@@ -89,6 +97,7 @@ export const LoginPage = () => {
           </Grid>
           <Grid item xs={12} sm={6}>
             <Button
+              aria-label="google-sign-in"
               disabled={isAuthenticating}
               onClick={onGoogleSignIn}
               variant="contained"
