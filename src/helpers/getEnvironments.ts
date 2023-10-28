@@ -1,6 +1,3 @@
 export const getEnvironments = () => {
-    import.meta.env
-    return {
-        ...import.meta.env
-    }
+    return JSON.parse(JSON.stringify(import.meta.env))
 }
