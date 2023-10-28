@@ -1,12 +1,13 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
-import { JournalNoteI } from './journal.interface';
+import { FileImageI, JournalNoteI } from './journal.interface';
 
 const initialState = {
     isSaving: false,
     messagesSaved: '',
     notes: [] as JournalNoteI[],
     active: null as JournalNoteI | null,
-    messageSaved: ''
+    messageSaved: '',
+    loadingNotes: true,
 }
 
 export const journalSlice = createSlice({
@@ -20,8 +21,12 @@ export const journalSlice = createSlice({
     setActiveNote: (state, action: PayloadAction<JournalNoteI>) => {
       state.active = action.payload;
     },
+    setActiveNoteById: (state, action: PayloadAction<{id: string}>) => {
+      state.active = state.notes.find(el => el.id === action.payload.id);
+    },
     setNotes: (state, action:  PayloadAction<JournalNoteI[]>) => {
       state.notes = action.payload;
+      state.loadingNotes = false;
     },
     setSaving: (state) => {
       state.isSaving = true;
@@ -46,7 +51,7 @@ export const journalSlice = createSlice({
     resetMessageSaved: (state) => {
       state.messageSaved = '';
     },
-    setPhotosToActiveNote: (state, action: PayloadAction<string[]>) => {
+    setPhotosToActiveNote: (state, action: PayloadAction<string[] | FileImageI[]>) => {
       if(!state.active) return;
       state.active.imageUrls = [...state.active.imageUrls, ...action.payload]
       state.isSaving = false;
@@ -56,6 +61,9 @@ export const journalSlice = createSlice({
       state.messageSaved = '';
       state.notes = [];
       state.active = null;
+    },
+    setLoadingNotes: (state, action: PayloadAction<boolean>) => {
+      state.loadingNotes = action.payload;
     }
   }
 });
@@ -69,7 +77,9 @@ export const {
     updateNote,
     resetMessageSaved,
     clearNotesLogout,
-    deleteNoteById
+    deleteNoteById,
+    setActiveNoteById,
+    setLoadingNotes
 } = journalSlice.actions
 
 export default journalSlice.reducer

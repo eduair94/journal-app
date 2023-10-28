@@ -1,9 +1,14 @@
+export interface FileImageI {
+    url: string;
+    type: string;
+    name: string;
+}
 export interface JournalNoteNewI {
     id?:string;
     title: string;
     body: string;
     date: number;
-    imageUrls: string[],
+    imageUrls: (FileImageI | string)[],
 }
 
 export type JournalNoteI = {

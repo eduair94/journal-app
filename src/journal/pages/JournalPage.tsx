@@ -3,18 +3,36 @@ import { JournalLayout } from "../layout/JournalLayout";
 import { NothingSelectedView, NoteView } from "../views";
 import AddOutlined from "@mui/icons-material/AddOutlined";
 import { useDispatch, useSelector } from "react-redux";
-import { startNewNote } from "../../store/journal";
+import { setActiveNoteById, startNewNote } from "../../store/journal";
 import { AppDispatch, RootState } from "../../store";
+import { useParams } from "react-router-dom";
+import { useEffect } from "react";
+import { LoadingNotes } from "../../../ui";
 
 export const JournalPage = () => {
   const dispatch: AppDispatch = useDispatch();
-  console.log("JOURNAL PAGE");
+  const { noteId } = useParams();
+  const { isSaving, active, notes, loadingNotes } = useSelector(
+    (state: RootState) => state.journal,
+  );
 
-  const { isSaving, active } = useSelector((state: RootState) => state.journal);
+  useEffect(() => {
+    if (notes.length) {
+      dispatch(setActiveNoteById({ id: noteId }));
+    }
+  }, [dispatch, noteId, notes]);
 
   const onNewNote = () => {
     dispatch(startNewNote());
   };
+
+  if (loadingNotes) {
+    return (
+      <JournalLayout>
+        <LoadingNotes />
+      </JournalLayout>
+    );
+  }
 
   return (
     <JournalLayout>

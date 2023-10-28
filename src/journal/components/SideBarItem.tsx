@@ -12,16 +12,20 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store";
 import { toggleSideBar } from "../../store/sidebar";
 import { useMobile } from "../../hooks";
+import { useNavigate } from "react-router-dom";
 
 export const SideBarItem = (note: JournalNoteI) => {
   const { title, body } = note;
+  const navigate = useNavigate();
 
   const dispatch: AppDispatch = useDispatch();
 
   const isMobile = useMobile();
 
   const onClickNote = () => {
-    dispatch(setActiveNote(note));
+    console.log("Navigate", note.id);
+    navigate("/" + note.id);
+    //dispatch(setActiveNote(note));
     if (isMobile) dispatch(toggleSideBar());
   };
 

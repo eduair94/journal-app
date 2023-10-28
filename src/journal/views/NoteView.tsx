@@ -21,6 +21,7 @@ import "sweetalert2/dist/sweetalert2.min.css";
 import { startDeletingNote } from "../../store/auth";
 
 export const NoteView = () => {
+  console.log("Note");
   const dispatch: AppDispatch = useDispatch();
   const {
     active: note,
