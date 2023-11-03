@@ -1,28 +1,19 @@
-import {collection, doc, setDoc} from 'firebase/firestore/lite';
+import { collection, doc, setDoc} from 'firebase/firestore/lite';
 import { AppDispatch, RootState } from ".."
-import { FileImageI, JournalNoteI, JournalNoteNewI, addNewEmptyNote, setActiveNote, setLoadingNotes, setNotes, setPhotosToActiveNote, setSaving, updateNote } from "./"
+import { FileImageI, JournalNoteI, JournalNoteNewI, newNote, setActiveNote, setImageUploadCounter, setLoadingNotes, setNotes, setPhotosToActiveNote, setSaving, updateNote } from "./"
 import { FirebaseDB } from '../../firebase/config';
 import { fileUpload, loadNotes } from '../../helpers';
 
 export const startNewNote = () => {
-    return async(dispatch:AppDispatch, getState: () => RootState) => {
-
-        dispatch(setSaving());
-
-        const {uid} = getState().auth;
-
+    return async(dispatch:AppDispatch) => {
         const newNote:JournalNoteNewI = {
             title: '',
             body: '',
             date: new Date().getTime(),
             imageUrls: [],
         }
-
-        const newDoc = doc(collection(FirebaseDB, `${uid}/journal/notes`));
-        await setDoc(newDoc, newNote);
-        newNote.id = newDoc.id;
-        dispatch(addNewEmptyNote(newNote as JournalNoteI));
         dispatch(setActiveNote(newNote as JournalNoteI));
+        return newNote;
     }
 }
 
@@ -48,22 +39,35 @@ export const startSavingNote = () => {
 
         // Upload Image Files.
         let imageUrls = note.imageUrls;
-        console.log("Upload image files");
         if(note.imageUrls.some(el => typeof el === 'object')) {
-            const res = await Promise.all(note.imageUrls.filter(el => typeof el === 'object').map(async ({url, name, type}: FileImageI) => {
+            let count = 0;
+            const toUpload = note.imageUrls.filter(el => typeof el === 'object');
+            dispatch(setImageUploadCounter([count, toUpload.length]))
+            const res = await Promise.all(toUpload.map(async ({url, name, type}: FileImageI) => {
                 const file = await fetch(url).then(r => r.blob()).then(blobFile => new File([blobFile], name, { type }));
-                return fileUpload(file as File);
+                const fileUrl = await fileUpload(file as File);
+                count++; dispatch(setImageUploadCounter([count, toUpload.length]))
+                return fileUrl;
             }))
             const resFiles = res.filter(r => r !== null) as string[];
             imageUrls = [...note.imageUrls.filter(el => typeof el === 'string'), ...resFiles];
         }
-        console.log("End upload", imageUrls);
-
+        console.log("IMAGE URLS", imageUrls);
         const noteToFirestore: JournalNoteNewI = {...note, imageUrls};
         delete noteToFirestore.id;
-        const docRef = doc(FirebaseDB, `${uid}/journal/notes/${note.id}`);	
-        await setDoc(docRef, noteToFirestore, {merge: true});
-        dispatch(updateNote({...note, imageUrls}))
+        let res = { isNew: false, id: note.id}
+        if(note.id) {
+            const docRef = doc(FirebaseDB, `${uid}/journal/notes/${note.id}`);	
+            await setDoc(docRef, noteToFirestore, {merge: true});
+            dispatch(updateNote({...note, imageUrls}))
+        } else {
+            const newDoc = doc(collection(FirebaseDB, `${uid}/journal/notes`));
+            await setDoc(newDoc, noteToFirestore);
+            dispatch(newNote({...note, imageUrls, id: newDoc.id}))
+            res = { isNew: true, id: newDoc.id };
+        }
+        dispatch(setImageUploadCounter([0, 0]))
+        return res;
     };
 }
 

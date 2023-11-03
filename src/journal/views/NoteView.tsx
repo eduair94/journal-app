@@ -5,9 +5,9 @@ import {
 } from "@mui/icons-material";
 import { Button, Grid, IconButton, TextField, Typography } from "@mui/material";
 import { ImageGallery } from "../components";
-import { FormValues, useForm } from "../../hooks";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../store";
+import { FormValidationsI, FormValues, useForm } from "../../hooks";
+import { Provider, useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState, store } from "../../store";
 import { useEffect, useMemo, useRef } from "react";
 import {
   JournalNoteI,
@@ -19,19 +19,36 @@ import {
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { startDeletingNote } from "../../store/auth";
+import { useNavigate } from "react-router-dom";
+import { ImageUploadProgress } from "../components/ImageUploadProgress";
+import withReactContent from "sweetalert2-react-content";
+const MySwal = withReactContent(Swal);
+
+const formValidations: FormValidationsI = {
+  title: [(value: string) => !!value, "El título no puede estar vacío"],
+  body: [(value: string) => !!value, "La descripción no puede estar vacía"],
+};
 
 export const NoteView = () => {
   console.log("Note");
   const dispatch: AppDispatch = useDispatch();
+  const navigate = useNavigate();
   const {
     active: note,
     isSaving,
     messageSaved,
   } = useSelector((state: RootState) => state.journal);
 
-  const { body, title, date, onInputChange, formState } = useForm(
-    note as unknown as FormValues,
-  );
+  const {
+    body,
+    title,
+    date,
+    onInputChange,
+    formState,
+    bodyValid,
+    titleValid,
+    isFormValid,
+  } = useForm(note as unknown as FormValues, formValidations);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -41,7 +58,10 @@ export const NoteView = () => {
 
   useEffect(() => {
     if (messageSaved.length) {
-      Swal.fire("Nota actualizada", messageSaved, "success");
+      MySwal.close();
+      setTimeout(() => {
+        MySwal.fire("Nota actualizada", messageSaved, "success");
+      });
       dispatch(resetMessageSaved());
     }
   }, [dispatch, messageSaved]);
@@ -51,8 +71,40 @@ export const NoteView = () => {
     return newDate.toUTCString();
   }, [date]);
 
+  const progressImageUpload = () => {
+    MySwal.fire({
+      title: "Saving note",
+      html: (
+        <Provider store={store}>
+          <ImageUploadProgress />
+        </Provider>
+      ),
+      didOpen: () => {
+        MySwal.showLoading();
+      },
+      didClose: () => {
+        console.log("Closed");
+      },
+      allowOutsideClick: () => {
+        const popup = MySwal.getPopup();
+        popup.classList.remove("swal2-show");
+        setTimeout(() => {
+          popup.classList.add("animate__animated", "animate__headShake");
+        });
+        setTimeout(() => {
+          popup.classList.remove("animate__animated", "animate__headShake");
+        }, 500);
+        return false;
+      },
+    });
+  };
+
   const onSaveNote = () => {
-    dispatch(startSavingNote());
+    if (!isFormValid) return;
+    progressImageUpload();
+    dispatch(startSavingNote()).then(({ isNew, id }) => {
+      if (isNew) navigate("/" + id);
+    });
   };
 
   const onFileInputChange = ({
@@ -63,7 +115,9 @@ export const NoteView = () => {
   };
 
   const onDelete = () => {
-    dispatch(startDeletingNote());
+    dispatch(startDeletingNote()).then(() => {
+      navigate("/");
+    });
   };
 
   return (
@@ -126,6 +180,8 @@ export const NoteView = () => {
           name="title"
           onChange={onInputChange}
           value={title}
+          error={!!titleValid}
+          helperText={titleValid}
         />
         <TextField
           type="text"
@@ -138,6 +194,8 @@ export const NoteView = () => {
           name="body"
           onChange={onInputChange}
           value={body}
+          error={!!bodyValid}
+          helperText={bodyValid}
         />
       </Grid>
       <Grid container justifyContent="end">

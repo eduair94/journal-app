@@ -6,7 +6,7 @@ import {
   Grid,
   ListItemText,
 } from "@mui/material";
-import { JournalNoteI, setActiveNote } from "../../store/journal";
+import { JournalNoteI } from "../../store/journal";
 import { useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store";

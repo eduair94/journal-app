@@ -8,12 +8,16 @@ const initialState = {
     active: null as JournalNoteI | null,
     messageSaved: '',
     loadingNotes: true,
+    imageUploadCounter: [0, 0]
 }
 
 export const journalSlice = createSlice({
   name: 'journal',
   initialState,
   reducers: {
+    setImageUploadCounter: (state, action: PayloadAction<number[]>) => {
+      state.imageUploadCounter = action.payload;
+    },
     addNewEmptyNote: (state, action: PayloadAction<JournalNoteI>) => {
       state.notes.push(action.payload);
       state.isSaving = false;
@@ -46,7 +50,14 @@ export const journalSlice = createSlice({
         }
         return note;
       })
+      state.active.imageUrls = action.payload.imageUrls;
       state.messageSaved = `${action.payload.title} saved`;
+    },
+    newNote: (state, action: PayloadAction<JournalNoteI>) => {
+      state.isSaving = false;
+      state.notes.unshift(action.payload)
+      state.active.imageUrls = action.payload.imageUrls;
+      state.messageSaved = `${action.payload.title} created`;
     },
     resetMessageSaved: (state) => {
       state.messageSaved = '';
@@ -64,6 +75,16 @@ export const journalSlice = createSlice({
     },
     setLoadingNotes: (state, action: PayloadAction<boolean>) => {
       state.loadingNotes = action.payload;
+    },
+    deleteImageFromActiveNote(state, action: PayloadAction<string|FileImageI>) {
+      if(!state.active) return;
+      state.active.imageUrls = state.active.imageUrls.filter(el => {
+        if(typeof el === 'string') {
+          return el !== action.payload;
+        } else {
+          return el.url !== action.payload;
+        }
+      });
     }
   }
 });
@@ -75,11 +96,14 @@ export const {
     setPhotosToActiveNote,
     setSaving,
     updateNote,
+    newNote,
     resetMessageSaved,
     clearNotesLogout,
     deleteNoteById,
     setActiveNoteById,
-    setLoadingNotes
+    setLoadingNotes,
+    setImageUploadCounter,
+    deleteImageFromActiveNote
 } = journalSlice.actions
 
 export default journalSlice.reducer

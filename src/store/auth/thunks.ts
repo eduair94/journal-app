@@ -63,8 +63,10 @@ export const startDeletingNote = () => {
         dispatch(setSaving());
         const {uid} = getState().auth;
         const {active: note} = getState().journal;
-        const docRef = doc(FirebaseDB, `${uid}/journal/notes/${note?.id}`)
-        await deleteDoc(docRef);
+        if(note.id) {
+            const docRef = doc(FirebaseDB, `${uid}/journal/notes/${note?.id}`)
+            await deleteDoc(docRef);
+        }
         dispatch(deleteNoteById(note?.id as string))
     }
 }

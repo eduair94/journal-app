@@ -5,25 +5,40 @@ import AddOutlined from "@mui/icons-material/AddOutlined";
 import { useDispatch, useSelector } from "react-redux";
 import { setActiveNoteById, startNewNote } from "../../store/journal";
 import { AppDispatch, RootState } from "../../store";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEffect } from "react";
 import { LoadingNotes } from "../../../ui";
 
 export const JournalPage = () => {
   const dispatch: AppDispatch = useDispatch();
   const { noteId } = useParams();
+  const navigate = useNavigate();
   const { isSaving, active, notes, loadingNotes } = useSelector(
     (state: RootState) => state.journal,
   );
 
   useEffect(() => {
-    if (notes.length) {
-      dispatch(setActiveNoteById({ id: noteId }));
+    // Set new note on /new path.
+    if (noteId === "new") {
+      dispatch(startNewNote());
+      return;
     }
-  }, [dispatch, noteId, notes]);
+  }, [noteId, dispatch]);
+
+  useEffect(() => {
+    // Set active note by id.
+    if (noteId === "new") return;
+    if (notes.length && noteId) {
+      const noteChanged = !active || active.id != noteId;
+      console.log("Set active note by id", noteId);
+      if (noteChanged) {
+        dispatch(setActiveNoteById({ id: noteId }));
+      }
+    }
+  }, [dispatch, noteId, notes, active]);
 
   const onNewNote = () => {
-    dispatch(startNewNote());
+    navigate("/new");
   };
 
   if (loadingNotes) {
