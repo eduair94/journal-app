@@ -5,10 +5,10 @@ import {
 } from "@mui/icons-material";
 import { Button, Grid, IconButton, TextField, Typography } from "@mui/material";
 import { ImageGallery } from "../components";
-import { FormValidationsI, FormValues, useForm } from "../../hooks";
+import { useForm } from "react-hook-form";
 import { Provider, useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState, store } from "../../store";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   JournalNoteI,
   resetMessageSaved,
@@ -22,15 +22,20 @@ import { startDeletingNote } from "../../store/auth";
 import { useNavigate } from "react-router-dom";
 import { ImageUploadProgress } from "../components/ImageUploadProgress";
 import withReactContent from "sweetalert2-react-content";
+import { Capitalize, FormValidationsI } from "../../helpers";
+import { formatRelative } from "date-fns";
 const MySwal = withReactContent(Swal);
 
 const formValidations: FormValidationsI = {
-  title: [(value: string) => !!value, "El título no puede estar vacío"],
-  body: [(value: string) => !!value, "La descripción no puede estar vacía"],
+  title: {
+    required: { value: true, message: "Title cannot be empty" },
+  },
+  body: {
+    required: { value: true, message: "Description cannot be empty" },
+  },
 };
 
 export const NoteView = () => {
-  console.log("Note");
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
   const {
@@ -40,35 +45,48 @@ export const NoteView = () => {
   } = useSelector((state: RootState) => state.journal);
 
   const {
-    body,
-    title,
-    date,
-    onInputChange,
-    formState,
-    bodyValid,
-    titleValid,
-    isFormValid,
-  } = useForm(note as unknown as FormValues, formValidations);
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+    setValue,
+  } = useForm({
+    defaultValues: {
+      title: note.title,
+      body: note.body,
+    },
+  });
+
+  useEffect(() => {
+    setValue("title", note.title);
+    setValue("body", note.body);
+  }, [setValue, note.title, note.body]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    dispatch(setActiveNote(formState as unknown as JournalNoteI));
-  }, [formState, dispatch]);
+    const subscription = watch((value) => {
+      const formState = { ...note, ...value };
+      dispatch(setActiveNote(formState as JournalNoteI));
+    });
+    return () => subscription.unsubscribe();
+  }, [note, dispatch, watch]);
 
   useEffect(() => {
     if (messageSaved.length) {
       MySwal.close();
       setTimeout(() => {
-        MySwal.fire("Nota actualizada", messageSaved, "success");
+        MySwal.fire(messageSaved[0], messageSaved[1], "success");
       });
       dispatch(resetMessageSaved());
     }
   }, [dispatch, messageSaved]);
 
+  const date = note.date;
   const dateString = useMemo(() => {
+    console.log("Date", date);
     const newDate = new Date(date as unknown as number);
-    return newDate.toUTCString();
+    return Capitalize(formatRelative(newDate, new Date()));
   }, [date]);
 
   const progressImageUpload = () => {
@@ -100,7 +118,6 @@ export const NoteView = () => {
   };
 
   const onSaveNote = () => {
-    if (!isFormValid) return;
     progressImageUpload();
     dispatch(startSavingNote()).then(({ isNew, id }) => {
       if (isNew) navigate("/" + id);
@@ -160,12 +177,12 @@ export const NoteView = () => {
         </IconButton>
         <Button
           disabled={isSaving}
-          onClick={onSaveNote}
+          onClick={handleSubmit(onSaveNote)}
           color="primary"
           sx={{ padding: 2 }}
         >
           <SaveOutlined sx={{ fontSize: 30, mr: 1 }} />
-          Guardar
+          Save
         </Button>
       </Grid>
 
@@ -174,28 +191,25 @@ export const NoteView = () => {
           type="text"
           variant="filled"
           fullWidth
-          placeholder="Ingrese un título"
-          label="Títutlo"
+          placeholder="Enter a title"
+          label="Title"
           sx={{ border: "none", mb: 1 }}
-          name="title"
-          onChange={onInputChange}
-          value={title}
-          error={!!titleValid}
-          helperText={titleValid}
+          {...register("title", formValidations.title)}
+          error={!!errors.title}
+          helperText={errors?.title?.message as string}
+          InputLabelProps={{ shrink: !!note.title }}
         />
         <TextField
           type="text"
           variant="filled"
           fullWidth
           multiline
-          placeholder="¿Qué sucedió en el día de hoy?"
+          placeholder="What happened today?"
           minRows={5}
           sx={{ border: "none", mb: 1 }}
-          name="body"
-          onChange={onInputChange}
-          value={body}
-          error={!!bodyValid}
-          helperText={bodyValid}
+          {...register("body", formValidations.body)}
+          error={!!errors.body}
+          helperText={errors?.body?.message as string}
         />
       </Grid>
       <Grid container justifyContent="end">
@@ -206,7 +220,7 @@ export const NoteView = () => {
           disabled={isSaving}
         >
           <DeleteOutline />
-          Borrar
+          Delete
         </Button>
       </Grid>
       <ImageGallery images={(note as JournalNoteI).imageUrls} />

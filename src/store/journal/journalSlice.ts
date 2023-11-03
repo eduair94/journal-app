@@ -6,7 +6,7 @@ const initialState = {
     messagesSaved: '',
     notes: [] as JournalNoteI[],
     active: null as JournalNoteI | null,
-    messageSaved: '',
+    messageSaved: [],
     loadingNotes: true,
     imageUploadCounter: [0, 0]
 }
@@ -51,16 +51,16 @@ export const journalSlice = createSlice({
         return note;
       })
       state.active.imageUrls = action.payload.imageUrls;
-      state.messageSaved = `${action.payload.title} saved`;
+      state.messageSaved = ['Note updated', `${action.payload.title} saved`];
     },
     newNote: (state, action: PayloadAction<JournalNoteI>) => {
       state.isSaving = false;
       state.notes.unshift(action.payload)
       state.active.imageUrls = action.payload.imageUrls;
-      state.messageSaved = `${action.payload.title} created`;
+      state.messageSaved = ['New Note', `${action.payload.title} created`];
     },
     resetMessageSaved: (state) => {
-      state.messageSaved = '';
+      state.messageSaved = [];
     },
     setPhotosToActiveNote: (state, action: PayloadAction<string[] | FileImageI[]>) => {
       if(!state.active) return;
@@ -69,7 +69,7 @@ export const journalSlice = createSlice({
     },
     clearNotesLogout: (state) => {
       state.isSaving = false;
-      state.messageSaved = '';
+      state.messageSaved = [];
       state.notes = [];
       state.active = null;
     },

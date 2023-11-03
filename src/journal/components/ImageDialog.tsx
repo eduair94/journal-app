@@ -17,7 +17,13 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-export const ImageDialog = ({ image }: { image: string }) => {
+export const ImageDialog = ({
+  image,
+  onClose,
+}: {
+  image: string;
+  onClose: () => void;
+}) => {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -26,6 +32,7 @@ export const ImageDialog = ({ image }: { image: string }) => {
 
   const handleClose = () => {
     setOpen(false);
+    onClose();
   };
 
   return (

@@ -1,7 +1,7 @@
 import { Alert, Button, Grid, TextField, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import { AuthLayout } from "../layout/AuthLayout";
-import { FormValidationsI, useForm } from "../../hooks";
+import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
 import {
@@ -10,37 +10,32 @@ import {
   startCreatingUserWithEmailPassword,
 } from "../../store/auth";
 import { useMemo } from "react";
-
-const formData = {
-  email: "",
-  password: "",
-  displayName: "",
-};
+import { FormValidationsI } from "../../helpers";
 
 const formValidations: FormValidationsI = {
-  email: [(value: string) => value.includes("@"), "El correo debe tener un @"],
-  password: [
-    (value: string) => value.length >= 6,
-    "La contraseña debe tener al menos 6 caracteres",
-  ],
-  displayName: [
-    (value: string) => value.length > 0,
-    "El nombre es obligatorio",
-  ],
+  email: {
+    required: { value: true, message: "Email is required" },
+    pattern: {
+      value:
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+      message: "Email is not valid",
+    },
+  },
+  password: {
+    required: { value: true, message: "Password is not valid" },
+    minLength: { value: 6, message: "Password must be at least 6 characters" },
+  },
+  displayName: {
+    required: { value: true, message: "Name is required" },
+  },
 };
 
 export const RegisterPage = () => {
   const {
-    displayName,
-    email,
-    password,
-    onInputChange,
-    displayNameValid,
-    emailValid,
-    passwordValid,
-    isFormValid,
-    setFormSubmitted,
-  } = useForm(formData, formValidations);
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
   const { errorMessage, status } = useSelector(
     (state: RootState) => state.auth,
@@ -53,10 +48,7 @@ export const RegisterPage = () => {
     [status],
   );
 
-  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setFormSubmitted(true);
-    if (!isFormValid) return;
+  const onSubmit = ({ email, password, displayName }) => {
     dispatch(
       startCreatingUserWithEmailPassword({
         email,
@@ -70,47 +62,41 @@ export const RegisterPage = () => {
     <AuthLayout title="Sign up">
       <form
         className="animate__animated animate__fadeIn animate__faster"
-        onSubmit={onSubmit}
+        onSubmit={handleSubmit(onSubmit)}
         action=""
       >
         <Grid container>
           <Grid item xs={12} sx={{ mt: 2 }}>
             <TextField
-              label="Nombre Completo"
+              label="Full Name"
               type="text"
-              placeholder="Nombre Completo"
+              placeholder="Full Name"
               fullWidth
-              value={displayName}
-              name="displayName"
-              onChange={onInputChange}
-              error={!!displayNameValid}
-              helperText={displayNameValid}
+              {...register("displayName", formValidations.displayName)}
+              error={!!errors.displayName}
+              helperText={errors?.displayName?.message as string}
             />
           </Grid>
           <Grid item xs={12} sx={{ mt: 2 }}>
             <TextField
-              label="Correo"
+              label="Email"
               type="email"
               placeholder="correo@gmail.com"
               fullWidth
-              value={email}
-              name="email"
-              onChange={onInputChange}
-              error={!!emailValid}
-              helperText={emailValid}
+              {...register("email", formValidations.email)}
+              error={!!errors.email}
+              helperText={errors?.email?.message as string}
             />
           </Grid>
           <Grid item xs={12} sx={{ mt: 2 }}>
             <TextField
-              label="Contraseña"
+              label="Password"
               type="password"
               placeholder="Contraseña"
               fullWidth
-              value={password}
-              name="password"
-              onChange={onInputChange}
-              error={!!passwordValid}
-              helperText={passwordValid}
+              {...register("password", formValidations.password)}
+              error={!!errors.password}
+              helperText={errors?.password?.message as string}
             />
           </Grid>
         </Grid>
@@ -125,15 +111,17 @@ export const RegisterPage = () => {
               variant="contained"
               fullWidth
             >
-              Crear cuenta
+              Create an account
             </Button>
           </Grid>
         </Grid>
 
         <Grid container direction="row" justifyContent="end">
-          <Typography sx={{ mr: 1 }}>¿Ya tienes cuenta?</Typography>
+          <Typography sx={{ mr: 1 }}>
+            Do you already have an account?
+          </Typography>
           <Link color="inherit" to="/auth/login">
-            Ingresar
+            Login
           </Link>
         </Grid>
       </form>

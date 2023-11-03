@@ -1,3 +1,5 @@
 export * from './loadNotes'
 export * from './fileUpload'
 export * from './getEnvironments'
+export * from './interfaces'
+export * from './functions'

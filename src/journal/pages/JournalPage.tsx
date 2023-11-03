@@ -53,22 +53,24 @@ export const JournalPage = () => {
     <JournalLayout>
       {active ? <NoteView /> : <NothingSelectedView />}
 
-      <IconButton
-        onClick={onNewNote}
-        disabled={isSaving}
-        size="large"
-        sx={{
-          color: "white",
-          backgroundColor: "error.main",
-          ":hover": { backgroundColor: "error.main", opacity: 0.9 },
-          ":disabled": { backgroundColor: "error.main", opacity: 0.2 },
-          position: "fixed",
-          right: 50,
-          bottom: 50,
-        }}
-      >
-        <AddOutlined sx={{ fontSize: 30 }} />
-      </IconButton>
+      {noteId !== "new" && (
+        <IconButton
+          onClick={onNewNote}
+          disabled={isSaving}
+          size="large"
+          sx={{
+            color: "white",
+            backgroundColor: "error.main",
+            ":hover": { backgroundColor: "error.main", opacity: 0.9 },
+            ":disabled": { backgroundColor: "error.main", opacity: 0.2 },
+            position: "fixed",
+            right: 50,
+            bottom: 50,
+          }}
+        >
+          <AddOutlined sx={{ fontSize: 30 }} />
+        </IconButton>
+      )}
     </JournalLayout>
   );
 };

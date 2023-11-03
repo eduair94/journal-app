@@ -23,8 +23,8 @@ export const NavBar = () => {
       position="fixed"
       sx={{
         width: {
-          sm: `calc(100% - ${drawerWidth}px)`,
-          ml: { sm: `${drawerWidth}px` },
+          md: `calc(100% - ${drawerWidth}px)`,
+          ml: { md: `${drawerWidth}px` },
         },
       }}
     >

@@ -11,8 +11,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
 import { SideBarItem } from ".";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import { toggleSideBar } from "../../store/sidebar";
+import { closeSideBar, openSideBar, toggleSideBar } from "../../store/sidebar";
 import { useMobile } from "../../hooks";
+import { useEffect } from "react";
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -28,10 +29,15 @@ export const SideBar = () => {
   const { displayName } = useSelector((state: RootState) => state.auth);
   const { notes } = useSelector((state: RootState) => state.journal);
   const isMobile = useMobile();
+  console.log("is mobile", isMobile);
 
   const { open, drawerWidth } = useSelector(
     (state: RootState) => state.sidebar,
   );
+
+  useEffect(() => {
+    !isMobile ? dispatch(openSideBar()) : null;
+  }, [dispatch, isMobile]);
 
   const handleDrawerClose = () => {
     dispatch(toggleSideBar());
@@ -47,14 +53,14 @@ export const SideBar = () => {
       ) {
         return;
       }
-
+      console.log("toggle drawer");
       dispatch(toggleSideBar());
     };
 
   return (
     <Box
       component="nav"
-      sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+      sx={{ width: { md: drawerWidth }, flexShrink: { sm: 0 } }}
     >
       <Drawer
         variant={isMobile ? "temporary" : "persistent"}

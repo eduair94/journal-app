@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-
+import { useState, useEffect, useMemo } from "react";
+import { purpleTheme } from "../theme";
+const mdBreakpoint = purpleTheme.breakpoints.values.md;
 export const useMobile = () => {
     const [width, setWidth] = useState<number>(window.innerWidth);
     function handleWindowSizeChange() {
@@ -11,6 +12,6 @@ export const useMobile = () => {
             window.removeEventListener('resize', handleWindowSizeChange);
         }
     }, []);
-    const isMobile = width <= 768;
+    const isMobile = useMemo(() => width <= mdBreakpoint, [width]);
     return isMobile;
 }

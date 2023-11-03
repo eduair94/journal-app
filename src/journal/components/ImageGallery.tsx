@@ -15,7 +15,7 @@ export const ImageGallery = ({
         images={images}
         onImageClick={(image: string) => setImagePopup(image)}
       />
-      <ImageDialog image={imagePopup} />
+      <ImageDialog image={imagePopup} onClose={() => setImagePopup("")} />
     </>
   );
 };

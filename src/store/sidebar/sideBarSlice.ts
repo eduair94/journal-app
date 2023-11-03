@@ -1,7 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit'
+import { purpleTheme } from '../../theme';
 
+const mdBreakpoint = purpleTheme.breakpoints.values.md;
 const initialState = {
-    open: window.innerWidth > 768,
+    open: window.innerWidth > mdBreakpoint,
     drawerWidth: 240,
 }
 
@@ -9,6 +11,12 @@ export const sideBarSlice = createSlice({
   name: 'sidebar',
   initialState,
   reducers: {
+    openSideBar: (state) => {
+      if(!state.open) state.open = true;
+    },
+    closeSideBar: (state) => {
+      if(state.open) state.open = false;
+    },
     toggleSideBar: (state) => {
         state.open = !state.open;
         if(!state.open) {
@@ -20,6 +28,6 @@ export const sideBarSlice = createSlice({
   }
 });
 
-export const {toggleSideBar} = sideBarSlice.actions
+export const {toggleSideBar, openSideBar, closeSideBar} = sideBarSlice.actions
 
 export default sideBarSlice.reducer

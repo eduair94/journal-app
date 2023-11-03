@@ -7,7 +7,7 @@ import Typography from "@mui/material/Typography";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { AuthLayout } from "../layout/AuthLayout";
-import { useForm } from "../../hooks";
+import { useForm } from "react-hook-form";
 import {
   AuthStatusEnum,
   startGoogleSignIn,
@@ -15,10 +15,21 @@ import {
 } from "../../store/auth";
 import { AppDispatch, RootState } from "../../store";
 import { useMemo } from "react";
+import { FormValidationsI } from "../../helpers";
 
-const formData = {
-  email: "",
-  password: "",
+const formValidations: FormValidationsI = {
+  email: {
+    required: { value: true, message: "Email is required" },
+    pattern: {
+      value:
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+      message: "Email is not valid",
+    },
+  },
+  password: {
+    required: { value: true, message: "Password is not valid" },
+    minLength: { value: 6, message: "Password must be at least 6 characters" },
+  },
 };
 
 export const LoginPage = () => {
@@ -28,16 +39,27 @@ export const LoginPage = () => {
     (state: RootState) => state.auth,
   );
 
-  const { email, password, onInputChange } = useForm(formData);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
+  console.log(errors);
 
   const isAuthenticating = useMemo(
     () => status === AuthStatusEnum.checking,
     [status],
   );
 
-  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    console.log("Email", email, password);
+  const onSubmit = ({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }) => {
+    console.log("Submit");
     dispatch(startLoginWithEmailPassword({ email, password }));
   };
 
@@ -49,9 +71,10 @@ export const LoginPage = () => {
   return (
     <AuthLayout title="Login">
       <form
+        noValidate
         data-testid="login-form"
         className="animate__animated animate__fadeIn animate__faster"
-        onSubmit={onSubmit}
+        onSubmit={handleSubmit(onSubmit)}
         action=""
       >
         <Grid container>
@@ -59,25 +82,25 @@ export const LoginPage = () => {
             <TextField
               label="Email"
               type="email"
-              name="email"
               placeholder="correo@gmail.com"
               fullWidth
-              value={email}
-              onChange={onInputChange}
+              {...register("email", formValidations.email)}
+              error={!!errors.email}
+              helperText={errors?.email?.message as string}
             />
           </Grid>
           <Grid item xs={12} sx={{ mt: 2 }}>
             <TextField
               label="Password"
               type="password"
-              name="password"
               placeholder="Contraseña"
               fullWidth
-              value={password}
-              onChange={onInputChange}
+              {...register("password", formValidations.password)}
               inputProps={{
                 "data-testid": "password",
               }}
+              error={!!errors.password}
+              helperText={errors?.password?.message as string}
             />
           </Grid>
         </Grid>
@@ -111,7 +134,7 @@ export const LoginPage = () => {
 
         <Grid container direction="row" justifyContent="end">
           <Link color="inherit" to="/auth/register">
-            Crear una cuenta
+            Create an account
           </Link>
         </Grid>
       </form>
