@@ -84,7 +84,6 @@ export const NoteView = () => {
 
   const date = note.date;
   const dateString = useMemo(() => {
-    console.log("Date", date);
     const newDate = new Date(date as unknown as number);
     return format(newDate, "yyyy/MM/dd HH:mm:ss");
   }, [date]);
