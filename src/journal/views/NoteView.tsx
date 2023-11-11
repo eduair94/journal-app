@@ -8,7 +8,7 @@ import { ImageGallery } from "../components";
 import { useForm } from "react-hook-form";
 import { Provider, useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState, store } from "../../store";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import {
   JournalNoteI,
   resetMessageSaved,
@@ -22,8 +22,8 @@ import { startDeletingNote } from "../../store/auth";
 import { useNavigate } from "react-router-dom";
 import { ImageUploadProgress } from "../components/ImageUploadProgress";
 import withReactContent from "sweetalert2-react-content";
-import { Capitalize, FormValidationsI } from "../../helpers";
-import { formatRelative } from "date-fns";
+import { FormValidationsI } from "../../helpers";
+import { format } from "date-fns";
 const MySwal = withReactContent(Swal);
 
 const formValidations: FormValidationsI = {
@@ -86,7 +86,7 @@ export const NoteView = () => {
   const dateString = useMemo(() => {
     console.log("Date", date);
     const newDate = new Date(date as unknown as number);
-    return Capitalize(formatRelative(newDate, new Date()));
+    return format(newDate, "yyyy/MM/dd HH:mm:ss");
   }, [date]);
 
   const progressImageUpload = () => {
@@ -129,6 +129,7 @@ export const NoteView = () => {
   }: React.ChangeEvent<HTMLInputElement>) => {
     if (target.files?.length === 0) return;
     dispatch(startUploadingFiles(target.files as FileList));
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const onDelete = () => {
